@@ -13,7 +13,6 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { useState } from 'react';
 import Header from '@/components/header';
 import Loader from '@/components/loader';
-import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/toast';
 import { link, type orpc } from '@/utils/orpc';
 import type { appRouter } from '../../../server/src/routers';
@@ -58,18 +57,11 @@ function RootComponent() {
   return (
     <>
       <HeadContent />
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="dark"
-        disableTransitionOnChange
-        storageKey="vite-ui-theme"
-      >
-        <div className="grid h-svh grid-rows-[auto_1fr]">
-          <Header />
-          {isFetching ? <Loader /> : <Outlet />}
-        </div>
-        <Toaster richColors />
-      </ThemeProvider>
+      <div className="grid h-svh grid-rows-[auto_1fr]">
+        <Header />
+        {isFetching ? <Loader /> : <Outlet />}
+      </div>
+      <Toaster richColors />
       <TanStackRouterDevtools position="bottom-left" />
       <ReactQueryDevtools buttonPosition="bottom-right" position="bottom" />
     </>
