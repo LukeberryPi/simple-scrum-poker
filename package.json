@@ -6,6 +6,7 @@
     "packages/*"
   ],
   "scripts": {
+    "prepare": "husky",
     "check": "biome check --write .",
     "dev": "turbo dev",
     "build": "turbo build",
@@ -21,8 +22,15 @@
   "devDependencies": {
     "@biomejs/biome": "2.1.2",
     "@playwright/test": "^1.54.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.5",
     "turbo": "^2.5.4",
     "ultracite": "5.1.1"
+  },
+  "lint-staged": {
+    "**/*.{js,jsx,ts,tsx,json,md}": [
+      "biome check --write"
+    ]
   },
   "packageManager": "bun@1.2.18"
 }

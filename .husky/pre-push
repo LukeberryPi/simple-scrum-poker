@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🚀 Running pre-push checks..."
+
+echo "📝 Formatting TypeScript and JavaScript files..."
+find apps tests -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" | xargs -r ./node_modules/.bin/biome format --write
+
+echo "🔍 Running type checks..."
+if ! bun run check-types; then
+  echo "❌ Type check failed! Fix type errors before pushing."
+  exit 1
+fi
+
+echo "🧪 Running E2E tests..."
+if ! bun test; then
+  echo "❌ Tests failed! Fix failing tests before pushing."
+  exit 1
+fi
+
+echo "✅ All checks passed! Pushing to remote..."

@@ -60,7 +60,7 @@ class ScrumPokerPage {
       .locator('h3:has-text("Participants")')
       .first();
     const countBadge = participantsHeader.locator(
-      '+ div >> text=/\d+\/\d+ voted/'
+      '+ div >> text=/d+/d+ voted/'
     );
     const countText = await countBadge.textContent();
     const match = countText?.match(/\d+$/);
