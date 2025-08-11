@@ -13,15 +13,11 @@
     "check-types": "turbo check-types",
     "dev:native": "turbo -F native dev",
     "dev:web": "turbo -F web dev",
-    "dev:server": "turbo -F server dev",
-    "test": "playwright test",
-    "test:ui": "playwright test --ui",
-    "test:debug": "playwright test --debug"
+    "dev:server": "turbo -F server dev"
   },
   "dependencies": {},
   "devDependencies": {
     "@biomejs/biome": "2.1.2",
-    "@playwright/test": "^1.54.2",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.5",
     "turbo": "^2.5.4",

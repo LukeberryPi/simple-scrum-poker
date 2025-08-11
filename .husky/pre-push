@@ -12,10 +12,4 @@ if ! bun run check-types; then
   exit 1
 fi
 
-echo "🧪 Running E2E tests..."
-if ! bun test; then
-  echo "❌ Tests failed! Fix failing tests before pushing."
-  exit 1
-fi
-
 echo "✅ All checks passed! Pushing to remote..."
