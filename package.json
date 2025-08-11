@@ -12,12 +12,16 @@
     "check-types": "turbo check-types",
     "dev:native": "turbo -F native dev",
     "dev:web": "turbo -F web dev",
-    "dev:server": "turbo -F server dev"
+    "dev:server": "turbo -F server dev",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug"
   },
   "dependencies": {},
   "devDependencies": {
-    "turbo": "^2.5.4",
     "@biomejs/biome": "2.1.2",
+    "@playwright/test": "^1.54.2",
+    "turbo": "^2.5.4",
     "ultracite": "5.1.1"
   },
   "packageManager": "bun@1.2.18"
