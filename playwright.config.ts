@@ -33,7 +33,7 @@ export default defineConfig({
   webServer: [
     {
       command: 'bun dev:server',
-      port: 3000,
+      port: 8080,
       reuseExistingServer: !process.env.CI,
     },
     {
