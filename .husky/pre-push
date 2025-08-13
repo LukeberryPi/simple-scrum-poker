@@ -4,7 +4,7 @@
 echo "🚀 Running pre-push checks..."
 
 echo "📝 Formatting TypeScript and JavaScript files..."
-find apps tests -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" | xargs -r ./node_modules/.bin/biome format --write
+find apps -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" | xargs -r ./node_modules/.bin/biome format --write
 
 echo "🔍 Running type checks..."
 if ! bun run check-types; then
