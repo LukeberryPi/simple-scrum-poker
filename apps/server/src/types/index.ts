@@ -43,16 +43,12 @@ export interface VoteStats {
 }
 
 export const FIBONACCI_DECK = [
-  '0',
-  '0.5',
   '1',
   '2',
   '3',
   '5',
   '8',
   '13',
-  '20',
-  '40',
-  '100',
+  '21',
 ] as const;
 export type FibonacciValue = (typeof FIBONACCI_DECK)[number];

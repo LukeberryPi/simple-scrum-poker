@@ -1,0 +1,44 @@
+services:
+  # Backend service
+  server:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - CORS_ORIGIN=http://localhost:3000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - scrum-poker
+
+  # Frontend service
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        - VITE_SERVER_URL=http://localhost:8080
+    ports:
+      - "3000:80"
+    depends_on:
+      - server
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - scrum-poker
+
+networks:
+  scrum-poker:
+    driver: bridge
+
+# For development with live reload, use:
+# docker-compose -f docker-compose.dev.yml up

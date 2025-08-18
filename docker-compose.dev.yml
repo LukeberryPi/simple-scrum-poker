@@ -1,0 +1,43 @@
+services:
+  # Backend service (development)
+  server:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+      target: builder # Use builder stage for development
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=development
+      - CORS_ORIGIN=http://localhost:3001
+    volumes:
+      - ./apps/server/src:/app/apps/server/src:ro
+    command: ["bun", "run", "--hot", "src/index.ts"]
+    working_dir: /app/apps/server
+    networks:
+      - scrum-poker-dev
+
+  # Frontend service (development)
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      target: builder # Use builder stage for development
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - VITE_SERVER_URL=http://localhost:8080
+    volumes:
+      - ./apps/web/src:/app/apps/web/src:ro
+      - ./apps/web/public:/app/apps/web/public:ro
+    command: ["bun", "run", "dev"]
+    working_dir: /app/apps/web
+    depends_on:
+      - server
+    networks:
+      - scrum-poker-dev
+
+networks:
+  scrum-poker-dev:
+    driver: bridge

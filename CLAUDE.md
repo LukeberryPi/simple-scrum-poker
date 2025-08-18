@@ -56,6 +56,48 @@ This is a TypeScript monorepo using Turborepo with two main applications:
 - `turbo.json` - Monorepo task configuration
 - `biome.json` - Linting and formatting configuration
 
+## Docker Deployment
+
+Each application can be deployed independently using Docker:
+
+### Building Individual Images
+
+```bash
+# Build frontend image
+docker build -f apps/web/Dockerfile -t simple-scrum-poker-web .
+
+# Build backend image  
+docker build -f apps/server/Dockerfile -t simple-scrum-poker-server .
+```
+
+### Local Testing with Docker Compose
+
+```bash
+# Production build testing
+docker-compose up --build
+
+# Development with live reload
+docker-compose -f docker-compose.dev.yml up --build
+```
+
+### Production Deployment
+
+**Frontend (apps/web/)**
+- Multi-stage build: Bun → nginx
+- Serves static assets on port 80
+- Includes health check endpoint at `/health`
+
+**Backend (apps/server/)**
+- Bun runtime with compiled JavaScript
+- Runs on port 8080
+- Includes health check endpoint at `/health`
+
+### Environment Variables for Docker
+
+- `CORS_ORIGIN` - CORS configuration for the server
+- `VITE_SERVER_URL` - Server URL for client API calls
+- `NODE_ENV` - Environment mode (production/development)
+
 ## Environment Variables
 
 - `CORS_ORIGIN` - CORS configuration for the server
