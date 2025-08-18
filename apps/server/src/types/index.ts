@@ -42,13 +42,5 @@ export interface VoteStats {
   distribution: Record<string, number>;
 }
 
-export const FIBONACCI_DECK = [
-  '1',
-  '2',
-  '3',
-  '5',
-  '8',
-  '13',
-  '21',
-] as const;
+export const FIBONACCI_DECK = ['1', '2', '3', '5', '8', '13', '21'] as const;
 export type FibonacciValue = (typeof FIBONACCI_DECK)[number];
