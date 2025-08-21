@@ -1,7 +1,7 @@
 FROM oven/bun:1.2.18-alpine AS builder
 WORKDIR /app
 COPY apps/server/package.json ./
-RUN bun install
+RUN bun install --dev
 COPY apps/server ./
 RUN bun run build
 FROM oven/bun:1.2.18-alpine

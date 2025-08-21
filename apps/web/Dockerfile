@@ -8,17 +8,18 @@ WORKDIR /app
 
 # Copy web package file and install dependencies
 COPY apps/web/package.json ./
-RUN bun install
+RUN bun install --dev
 
-# Copy server types for ORPC (minimal dependency)
-COPY apps/server/src/routers ./server/src/routers
-COPY apps/server/src/types ./server/src/types
+# Copy server types for ORPC (preserve import paths)
+COPY apps/server/src/routers ./apps/server/src/routers
+COPY apps/server/src/types ./apps/server/src/types
+COPY apps/server/tsconfig.json ./apps/server/
 
-# Copy web source code (after server types to preserve import paths)
-COPY apps/web ./web
+# Copy web source code
+COPY apps/web ./apps/web
 
 # Build the web application
-WORKDIR /app/web
+WORKDIR /app/apps/web
 RUN bun run build
 
 # Production stage
@@ -28,7 +29,7 @@ FROM nginx:1.27-alpine
 COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy built assets from build stage
-COPY --from=builder /app/web/dist /usr/share/nginx/html
+COPY --from=builder /app/apps/web/dist /usr/share/nginx/html
 
 # Expose port 80
 EXPOSE 80
