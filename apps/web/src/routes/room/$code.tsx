@@ -157,7 +157,10 @@ function RoomComponent() {
     initializeRoom();
 
     return () => {
-      wsClient?.disconnect();
+      if (wsClient) {
+        wsClient.disconnect();
+        setWsClient(null);
+      }
     };
   }, [code, navigate, handleRoomUpdate]);
 

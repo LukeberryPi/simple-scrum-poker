@@ -20,14 +20,6 @@
       "@server/*": ["./apps/server/src/*"]
     }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "tests/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", "tests/**/*.ts"],
+  "exclude": ["node_modules", "dist", "build"]
 }

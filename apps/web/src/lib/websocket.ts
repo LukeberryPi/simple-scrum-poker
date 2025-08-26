@@ -7,7 +7,12 @@ export class WebSocketClient {
   private onRoomUpdate?: (room: RoomState, stats: VoteStats | null) => void;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
-  private reconnectDelay = 1000;
+  private baseReconnectDelay = 1000;
+  private maxReconnectDelay = 30_000;
+  private reconnectTimeoutId: number | null = null;
+  private heartbeatIntervalId: number | null = null;
+  private isConnecting = false;
+  private shouldReconnect = true;
 
   constructor(
     roomId: string,
@@ -20,10 +25,17 @@ export class WebSocketClient {
   }
 
   connect(): void {
-    const serverUrl = import.meta.env.VITE_SERVER_URL || 'ws://localhost:8080';
-    const wsUrl =
-      serverUrl.replace('http', 'ws') +
-      `/ws?roomId=${this.roomId}&participantId=${this.participantId}`;
+    if (
+      this.isConnecting ||
+      (this.ws && this.ws.readyState === WebSocket.CONNECTING)
+    ) {
+      return;
+    }
+
+    this.isConnecting = true;
+    const serverUrl =
+      import.meta.env.VITE_SERVER_URL || 'http://localhost:8080';
+    const wsUrl = this.buildWebSocketUrl(serverUrl);
 
     try {
       this.ws = new WebSocket(wsUrl);
@@ -31,6 +43,7 @@ export class WebSocketClient {
       this.ws.onopen = () => {
         console.log('WebSocket connected');
         this.reconnectAttempts = 0;
+        this.isConnecting = false;
         // Request current room state
         this.send({ type: 'requestRoomState' });
       };
@@ -44,23 +57,45 @@ export class WebSocketClient {
         }
       };
 
-      this.ws.onclose = () => {
-        console.log('WebSocket disconnected');
-        this.attemptReconnect();
+      this.ws.onclose = (event) => {
+        console.log('WebSocket disconnected', {
+          code: event.code,
+          reason: event.reason,
+        });
+        this.isConnecting = false;
+        if (this.shouldReconnect) {
+          this.attemptReconnect();
+        }
       };
 
       this.ws.onerror = (error) => {
         console.error('WebSocket error:', error);
+        this.isConnecting = false;
       };
     } catch (error) {
       console.error('Failed to connect WebSocket:', error);
-      this.attemptReconnect();
+      this.isConnecting = false;
+      if (this.shouldReconnect) {
+        this.attemptReconnect();
+      }
     }
   }
 
   disconnect(): void {
+    this.shouldReconnect = false;
+
+    if (this.reconnectTimeoutId) {
+      clearTimeout(this.reconnectTimeoutId);
+      this.reconnectTimeoutId = null;
+    }
+
+    if (this.heartbeatIntervalId) {
+      clearInterval(this.heartbeatIntervalId);
+      this.heartbeatIntervalId = null;
+    }
+
     if (this.ws) {
-      this.ws.close();
+      this.ws.close(1000, 'Client disconnecting');
       this.ws = null;
     }
   }
@@ -88,15 +123,29 @@ export class WebSocketClient {
   }
 
   private attemptReconnect(): void {
+    if (!this.shouldReconnect) {
+      return;
+    }
+
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
       console.log(
         `Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`
       );
 
-      setTimeout(() => {
-        this.connect();
-      }, this.reconnectDelay * this.reconnectAttempts);
+      // Exponential backoff with jitter
+      const delay = Math.min(
+        this.baseReconnectDelay * 2 ** (this.reconnectAttempts - 1) +
+          Math.random() * 1000,
+        this.maxReconnectDelay
+      );
+
+      this.reconnectTimeoutId = window.setTimeout(() => {
+        this.reconnectTimeoutId = null;
+        if (this.shouldReconnect) {
+          this.connect();
+        }
+      }, delay);
     } else {
       console.error('Max reconnection attempts reached');
     }
@@ -104,8 +153,29 @@ export class WebSocketClient {
 
   // Send periodic pings to keep connection alive
   startHeartbeat(): void {
-    setInterval(() => {
+    if (this.heartbeatIntervalId) {
+      clearInterval(this.heartbeatIntervalId);
+    }
+
+    this.heartbeatIntervalId = window.setInterval(() => {
       this.send({ type: 'ping' });
     }, 30_000); // Send ping every 30 seconds
+  }
+
+  private buildWebSocketUrl(serverUrl: string): string {
+    // Handle URL transformation properly
+    let wsUrl = serverUrl;
+
+    // Replace http/https with ws/wss
+    if (wsUrl.startsWith('https://')) {
+      wsUrl = wsUrl.replace('https://', 'wss://');
+    } else if (wsUrl.startsWith('http://')) {
+      wsUrl = wsUrl.replace('http://', 'ws://');
+    } else if (!(wsUrl.startsWith('ws://') || wsUrl.startsWith('wss://'))) {
+      // Default to ws:// if no protocol specified
+      wsUrl = `ws://${wsUrl}`;
+    }
+
+    return `${wsUrl}/ws?roomId=${this.roomId}&participantId=${this.participantId}`;
   }
 }
