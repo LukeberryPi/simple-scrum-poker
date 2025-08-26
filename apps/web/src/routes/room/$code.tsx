@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation  } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
@@ -17,7 +17,7 @@ import type {
   RoomState,
   VoteStats,
 } from '@/types';
-import { client, orpc } from '@/utils/orpc';
+import { client  } from '@/utils/orpc';
 
 export const Route = createFileRoute('/room/$code')({
   component: RoomComponent,
@@ -33,14 +33,6 @@ function RoomComponent() {
   const [wsClient, setWsClient] = useState<WebSocketClient | null>(null);
   const [selectedVote, setSelectedVote] = useState<FibonacciValue | null>(null);
 
-  // Get initial room state
-  const roomQuery = useQuery({
-    queryKey: ['roomState', roomState?.id],
-    queryFn: () =>
-      roomState?.id ? client.getRoomState({ roomId: roomState.id }) : null,
-    enabled: !!roomState?.id,
-    refetchInterval: 5000, // Fallback polling
-  });
 
   const castVoteMutation = useMutation({
     mutationFn: client.castVote,
