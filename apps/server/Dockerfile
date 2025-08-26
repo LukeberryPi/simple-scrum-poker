@@ -1,9 +1,10 @@
 FROM oven/bun:1.2.18-alpine AS builder
 WORKDIR /app
-COPY apps/server/package.json ./
+COPY package.json ./
 RUN bun install --dev
-COPY apps/server ./
+COPY . ./
 RUN bun run build
+
 FROM oven/bun:1.2.18-alpine
 RUN apk add --no-cache curl
 WORKDIR /app
